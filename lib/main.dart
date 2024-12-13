@@ -28,6 +28,72 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
   String _expression = "";
   bool _newCalculation = false;
 
+  void _buttonPressed(String value) {
+    setState(() {
+      if (value == "C") {
+        _output = "0";
+        _expression = "";
+        _newCalculation = false;
+      } else if (value == "CE") {
+        if (_expression.isNotEmpty) {
+          _expression = _expression.substring(0, _expression.length - 1);
+          _output = _expression.isEmpty ? "0" : _expression;
+        }
+      } else if (value == "=") {
+        if (_expression.isNotEmpty) {
+          try {
+            _output = _calculateOutput();
+            _expression = _output;
+            _newCalculation = true;
+          } catch (e) {
+            _output = "Error";
+            _expression = "";
+          }
+        }
+      } else if (value == "√") {
+        // Kvadrat ildizni hisoblash
+        try {
+          double number = double.parse(_expression);
+          _output = (number >= 0 ? sqrt(number).toString() : "Error"); // sqrt ishlatildi
+          _expression = _output;
+          _newCalculation = true;
+        } catch (e) {
+          _output = "Error";
+        }
+      } else if (value == "%") {
+        // Foizni hisoblash
+        try {
+          double number = double.parse(_expression);
+          _output = (number / 100).toString();
+          _expression = _output;
+          _newCalculation = true;
+        } catch (e) {
+          _output = "Error";
+        }
+      } else if (["+", "-", "×", "÷"].contains(value)) {
+        if (_newCalculation) {
+          _expression = _output;
+          _newCalculation = false;
+        }
+        if (_expression.isNotEmpty && !["+", "-", "×", "÷"].contains(_expression[_expression.length - 1])) {
+          _expression += value;
+          _output = _expression;
+        }
+      } else {
+        if (_newCalculation) {
+          _expression = "";
+          _newCalculation = false;
+        }
+        if (_output == "0" && value != ".") {
+          _expression = value;
+        } else {
+          _expression += value;
+        }
+        _output = _expression;
+      }
+    });
+  }
+
   String _calculateOutput() {
     try {
       Parser parser = Parser();
@@ -42,7 +108,7 @@ class _CalculatorScreenState extends State<CalculatorScreen> {
 
   Widget _buildButton(String label, {Color? backgroundColor, Color? textColor}) {
     return ElevatedButton(
-      onPressed: () => (label),
+      onPressed: () => _buttonPressed(label),
       style: ElevatedButton.styleFrom(
         backgroundColor: backgroundColor ?? const Color(0xFFE0E0E0), // Tugmalar uchun kulrang fon
         shape: const CircleBorder(),
