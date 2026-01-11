@@ -1,4 +1,4 @@
-# calc_aziz
+# calc
 
 A new Flutter project.
 
